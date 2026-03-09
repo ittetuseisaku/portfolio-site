@@ -1,0 +1,437 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <title>マルチカウンターアプリ</title>
+
+    <style>
+      /* 全体の基本スタイル */
+      body {
+        font-family: sans-serif;
+        background: #f5f5f5;
+        padding: 20px;
+      }
+
+      /* 中央の白いカード */
+      .container {
+        max-width: 900px;
+        margin: 0 auto;
+        background: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      input {
+        padding: 8px;
+        margin: 5px 0;
+        width: 60%;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+      }
+
+      #clearTitleBtn {
+        padding: 8px 12px;
+        margin-left: 5px;
+        background: #888;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+
+      button {
+        padding: 8px 12px;
+        margin: 5px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        background: #1976d2;
+        color: #fff;
+      }
+
+      .danger {
+        background: #d32f2f;
+      }
+
+      /* カウンターの箱 */
+      .counter {
+        background: #fafafa;
+        padding: 15px;
+        border-radius: 6px;
+        border: 1px solid #ddd;
+      }
+
+      .title {
+        font-size: 18px;
+        font-weight: bold;
+      }
+
+      .number {
+        font-size: 24px;
+        margin: 10px 0;
+      }
+
+      /* カウンター一覧のグリッド */
+      #counterList {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 12px;
+      }
+
+      /* ライセンスモーダル */
+      .modal {
+        display: none;
+        position: fixed;
+        z-index: 9999;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+      }
+
+      .modal-content {
+        background: #fff;
+        margin: 10% auto;
+        padding: 20px;
+        width: 90%;
+        max-width: 700px;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+      }
+
+      .close {
+        float: right;
+        font-size: 24px;
+        cursor: pointer;
+      }
+
+      .license-text {
+        white-space: pre-wrap;
+        font-size: 14px;
+        background: #fafafa;
+        padding: 10px;
+        border-radius: 6px;
+        border: 1px solid #ddd;
+      }
+
+      /* h2 の右端にライセンスボタンを固定 */
+      .header-area {
+        position: relative;
+        margin-bottom: 10px;
+      }
+
+      .license-btn {
+        position: absolute;
+        right: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        padding: 6px 12px;
+        background: #555;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <div class="header-area">
+        <h2>マルチカウンターアプリ</h2>
+        <button class="license-btn" onclick="openLicenseModal()">
+          ライセンス
+        </button>
+      </div>
+
+      <!-- タイトル入力欄 -->
+      <label>タイトル（空欄でもOK）</label><br />
+      <input type="text" id="counterTitle" placeholder="例：台数" />
+      <button id="clearTitleBtn" onclick="clearTitle()">クリア</button>
+
+      <!-- カウンター追加 -->
+      <button onclick="addCounter()">カウンターを追加</button>
+
+      <hr />
+
+      <!-- 全体操作 -->
+      <button class="danger" onclick="clearAllCounts()">
+        全カウントを0にする
+      </button>
+      <button class="danger" onclick="deleteAllCounters()">
+        全カウンター削除
+      </button>
+
+      <!-- 保存関連 -->
+      <button onclick="saveToFile()">保存（PCに）</button>
+      <button onclick="document.getElementById('fileInput').click()">
+        読み込み（ファイル）
+      </button>
+
+      <p style="font-size: 12px; color: #666">
+        ※自動保存データはブラウザの履歴・キャッシュ削除で消える場合があります。<br />
+        重要なデータは「保存（PCに）」から JSON をバックアップしてください。
+      </p>
+
+      <!-- カウンター一覧 -->
+      <div id="counterList"></div>
+
+      <!-- ファイル読み込み用 input（非表示） -->
+      <input
+        type="file"
+        id="fileInput"
+        accept="application/json"
+        style="display: none"
+      />
+    </div>
+
+    <!-- SortableJS -->
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+
+    <script>
+      window.onload = loadFromLocalStorage;
+      /*-----------------------------------------
+        ① 自動保存（localStorage）
+      -----------------------------------------*/
+      function saveToLocalStorage() {
+        const counters = Array.from(document.querySelectorAll(".counter")).map(
+          (c) => ({
+            title: c.dataset.baseTitle,
+            number: c.querySelector(".number").textContent,
+          }),
+        );
+
+        localStorage.setItem("multiCounterData", JSON.stringify(counters));
+      }
+      /*自動読み込み*/
+      function loadFromLocalStorage() {
+        const data = localStorage.getItem("multiCounterData");
+        if (!data) return;
+
+        const counters = JSON.parse(data);
+        document.getElementById("counterList").innerHTML = "";
+
+        counters.forEach((item) => {
+          const container = document.createElement("div");
+          container.className = "counter";
+          container.dataset.baseTitle = item.title;
+
+          container.innerHTML = `
+      <div class="title">${item.title}</div>
+      <div class="number">${item.number}</div>
+      <button onclick="changeCount(this, 1)">＋</button>
+      <button onclick="changeCount(this, -1)">－</button>
+      <button onclick="resetCount(this)">リセット</button>
+      <button class="danger" onclick="deleteCounter(this)">削除</button>
+    `;
+
+          document.getElementById("counterList").appendChild(container);
+        });
+
+        updateTitles();
+      }
+
+      /* ブラウザを閉じる前に自動保存 */
+      window.addEventListener("beforeunload", saveToLocalStorage);
+
+      /*-----------------------------------------
+        ② JSON を PC に保存（手動保存）
+      -----------------------------------------*/
+      function saveToFile() {
+        const counters = Array.from(document.querySelectorAll(".counter")).map(
+          (c) => ({
+            title: c.dataset.baseTitle,
+            number: c.querySelector(".number").textContent,
+          }),
+        );
+
+        const blob = new Blob([JSON.stringify(counters, null, 2)], {
+          type: "application/json",
+        });
+
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+
+        a.href = url;
+        a.download = "counters.json";
+        a.click();
+
+        URL.revokeObjectURL(url);
+      }
+
+      /*-----------------------------------------
+        ③ JSON ファイルを読み込んで復元
+      -----------------------------------------*/
+      document
+        .getElementById("fileInput")
+        .addEventListener("change", function () {
+          const file = this.files[0];
+          if (!file) return;
+
+          const reader = new FileReader();
+          reader.onload = function (e) {
+            const data = JSON.parse(e.target.result);
+
+            document.getElementById("counterList").innerHTML = "";
+
+            data.forEach((item) => {
+              const container = document.createElement("div");
+              container.className = "counter";
+              container.dataset.baseTitle = item.title;
+
+              container.innerHTML = `
+              <div class="title">${item.title}</div>
+              <div class="number">${item.number}</div>
+              <button onclick="changeCount(this, 1)">＋</button>
+              <button onclick="changeCount(this, -1)">－</button>
+              <button onclick="resetCount(this)">リセット</button>
+              <button class="danger" onclick="deleteCounter(this)">削除</button>
+            `;
+
+              document.getElementById("counterList").appendChild(container);
+            });
+
+            updateTitles();
+            alert("読み込みました");
+          };
+
+          reader.readAsText(file);
+        });
+
+      /*-----------------------------------------
+        カウンター基本機能
+      -----------------------------------------*/
+      function clearTitle() {
+        document.getElementById("counterTitle").value = "";
+      }
+
+      function addCounter() {
+        let title = document.getElementById("counterTitle").value.trim();
+        if (!title) title = "カウンター";
+
+        const container = document.createElement("div");
+        container.className = "counter";
+        container.dataset.baseTitle = title;
+
+        container.innerHTML = `
+          <div class="title">${title}</div>
+          <div class="number">0</div>
+          <button onclick="changeCount(this, 1)">＋</button>
+          <button onclick="changeCount(this, -1)">－</button>
+          <button onclick="resetCount(this)">リセット</button>
+          <button class="danger" onclick="deleteCounter(this)">削除</button>
+        `;
+
+        document.getElementById("counterList").appendChild(container);
+        updateTitles();
+      }
+
+      function updateTitles() {
+        const counters = Array.from(
+          document.querySelectorAll("#counterList .counter"),
+        );
+        const groups = {};
+
+        counters.forEach((c) => {
+          const base = c.dataset.baseTitle;
+          if (!groups[base]) groups[base] = [];
+          groups[base].push(c);
+        });
+
+        for (const base in groups) {
+          groups[base].forEach((c, i) => {
+            c.querySelector(".title").textContent = base + " " + (i + 1);
+          });
+        }
+      }
+
+      function changeCount(btn, delta) {
+        const numberDiv = btn.parentElement.querySelector(".number");
+        let value = parseInt(numberDiv.textContent);
+        value += delta;
+        numberDiv.textContent = value;
+      }
+
+      function resetCount(btn) {
+        btn.parentElement.querySelector(".number").textContent = 0;
+      }
+
+      function deleteCounter(btn) {
+        btn.parentElement.remove();
+        updateTitles();
+      }
+
+      function clearAllCounts() {
+        document
+          .querySelectorAll(".number")
+          .forEach((n) => (n.textContent = 0));
+      }
+
+      function deleteAllCounters() {
+        document.getElementById("counterList").innerHTML = "";
+      }
+
+      /* SortableJS */
+      new Sortable(counterList, {
+        animation: 150,
+        ghostClass: "dragging",
+        onEnd: () => updateTitles(),
+      });
+
+      /* ライセンスモーダル */
+      function openLicenseModal() {
+        document.getElementById("licenseModal").style.display = "block";
+      }
+
+      function closeLicenseModal() {
+        document.getElementById("licenseModal").style.display = "none";
+      }
+
+      window.onclick = function (event) {
+        const modal = document.getElementById("licenseModal");
+        if (event.target === modal) {
+          modal.style.display = "none";
+        }
+      };
+    </script>
+
+    <!-- License Modal -->
+    <div id="licenseModal" class="modal">
+      <div class="modal-content">
+        <span class="close" onclick="closeLicenseModal()">&times;</span>
+        <h3>ライセンス</h3>
+        <pre class="license-text">
+Copyright (c) 2026 一徹制作
+
+
+本アプリ（HTML/CSS/JavaScript を含む一式）の著作権は一徹制作に帰属します。
+
+【許可されること】
+- 個人利用・商用利用
+- コードの改変、カスタマイズ
+- 改変したバージョンの配布（商用・無償どちらも可）
+- テンプレートとしての利用、学習目的での利用
+
+【禁止されること】
+- 本アプリを「無改変のまま」コピーして再配布する行為
+- 本アプリをそのまま再公開・再販売する行為
+- 作者を偽る行為
+
+【条件】
+- 改変版を配布する場合は、オリジナルから改変したことを明記してください。
+- 本アプリの一部または全部を利用したことによる損害について、作者は責任を負いません。
+
+【使用ライブラリ】
+本アプリは SortableJS を使用しています。
+SortableJS は MIT License の下で提供されています。
+
+SortableJS © 2023 SortableJS contributors
+MIT License: https://github.com/SortableJS/Sortable/blob/master/LICENSE
+        </pre>
+      </div>
+    </div>
+  </body>
+</html>

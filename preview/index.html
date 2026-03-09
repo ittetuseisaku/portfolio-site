@@ -1,0 +1,480 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <title>プレビューアプリ</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <style>
+      /* -----------------------------------
+         全体レイアウト
+      ----------------------------------- */
+      body {
+        margin: 0;
+        display: flex; /* ← ヘッダー以外の部分を横並びにする */
+        height: 100vh;
+        font-family: sans-serif;
+        flex-direction: column; /* ← ヘッダーを上、残りを下に配置 */
+      }
+
+      /* -----------------------------------
+         ヘッダー
+      ----------------------------------- */
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px 40px;
+        border-bottom: 1px solid #eee;
+        background: #333;
+      }
+
+      .nav {
+        display: flex;
+        gap: 20px;
+      }
+
+      .nav a {
+        text-decoration: none;
+        color: #fff;
+        font-weight: bold;
+      }
+
+      .logo {
+        font-size: 20px;
+        color: #fff;
+        font-weight: bold;
+      }
+
+      /* -----------------------------------
+         メイン領域（サイドバー + プレビュー）
+      ----------------------------------- */
+      .main {
+        display: flex;
+        flex: 1; /* ← 画面の残り全体を使う */
+      }
+
+      /* 左側：テンプレ＋入力欄 */
+      .sidebar {
+        width: 30%;
+        background: #f5f5f5;
+        padding: 20px;
+        box-sizing: border-box;
+        overflow-y: auto;
+        border-right: 2px solid #ddd;
+      }
+
+      .template-btn {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 8px;
+        border: none;
+        background: #ddd;
+        cursor: pointer;
+        border-radius: 4px;
+        text-align: left;
+      }
+
+      .sidebar .template-btn:last-of-type {
+        margin-bottom: 30px;
+      }
+
+      .template-btn.active {
+        background: #bbb;
+      }
+
+      textarea {
+        width: 100%;
+        height: 120px;
+        padding: 10px;
+        font-family: monospace;
+        font-size: 14px;
+        box-sizing: border-box;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        resize: vertical;
+        margin-bottom: 20px;
+      }
+
+      .section-title {
+        display: flex;
+        flex-direction: column; /* ← 縦並びにする */
+        align-items: flex-start; /* ← 左揃え */
+        gap: 6px;
+        margin: 0 0 8px 0;
+      }
+      /* コピーボタン */
+      .copy-btn {
+        align-self: flex-end;
+        padding: 6px 12px;
+        background: #6c4da1;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 13px;
+      }
+      .btn-row {
+        display: flex;
+        gap: 8px;
+        align-self: flex-end;
+      }
+
+      .clear-btn {
+        padding: 6px 12px;
+        background: #999;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 13px;
+      }
+
+      /* 右側：プレビュー */
+      iframe {
+        width: 70%;
+        border: none;
+        background: white;
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- ▼ ヘッダー -->
+    <header class="header">
+      <div class="logo">プレビュー</div>
+      <nav class="nav">
+        <a href="howto.html">使用方法</a>
+        <a href="dictionary.html">辞典</a>
+        <a href="license.html">ライセンス</a>
+      </nav>
+    </header>
+
+    <!-- ▼ メイン領域（サイドバー + プレビュー） -->
+    <div class="main">
+      <!-- 左側：テンプレート選択＋入力欄 -->
+      <div class="sidebar">
+        <h2>テンプレート</h2>
+        <button class="template-btn" data-key="base">① HTML初期設定</button>
+        <button class="template-btn" data-key="structure">
+          ② セクション構造
+        </button>
+        <button class="template-btn" data-key="form">③ フォーム基本形</button>
+        <button class="template-btn" data-key="table">④ テーブル基本形</button>
+        <button class="template-btn" data-key="list">⑤ リスト構造</button>
+        <button class="template-btn" data-key="figure">
+          ⑥ 画像＋キャプション
+        </button>
+        <button class="template-btn" data-key="buttons">⑦ ボタンセット</button>
+        <button class="template-btn" data-key="cards">
+          ⑧ レスポンシブグリッドカード
+        </button>
+
+        <h2 class="section-title">
+          HTML
+          <div class="btn-row">
+            <button class="clear-btn" data-target="html">クリア</button>
+            <button class="copy-btn" data-target="html">コピー</button>
+          </div>
+        </h2>
+        <textarea id="htmlInput"></textarea>
+
+        <h2 class="section-title">
+          CSS
+          <div class="btn-row">
+            <button class="clear-btn" data-target="css">クリア</button>
+            <button class="copy-btn" data-target="css">コピー</button>
+          </div>
+        </h2>
+        <textarea id="cssInput"></textarea>
+
+        <h2 class="section-title">
+          JavaScript
+          <div class="btn-row">
+            <button class="clear-btn" data-target="js">クリア</button>
+            <button class="copy-btn" data-target="js">コピー</button>
+          </div>
+        </h2>
+        <textarea id="jsInput"></textarea>
+      </div>
+
+      <!-- 右側：プレビュー -->
+      <iframe id="preview"></iframe>
+    </div>
+
+    <script>
+      /* -------------------------
+               テンプレート定義
+            ------------------------- */
+      const templates = {
+        base: {
+          html: `<!DOCTYPE html>
+      <html lang="ja">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>ページタイトル</title>
+        <link rel="stylesheet" href="style.css">
+      </head>
+      <body>
+
+      </body>
+      </html>`,
+          css: `/* 必要に応じてCSSを追加してください */`,
+          js: `// JavaScriptをここに書きます`,
+        },
+
+        structure: {
+          html: `<header></header>
+
+      <main>
+        <section></section>
+        <section></section>
+      </main>
+
+      <footer></footer>`,
+          css: `header, footer, section {
+        padding: 40px;
+        border: 1px solid #ddd;
+        margin-bottom: 20px;
+      }`,
+          js: ``,
+        },
+
+        form: {
+          html: `<form action="#" method="post">
+        <label>
+          名前：
+          <input type="text" name="name" required>
+        </label>
+
+        <label>
+          メール：
+          <input type="email" name="email" required>
+        </label>
+
+        <label>
+          お問い合わせ内容：
+          <textarea name="message" required></textarea>
+        </label>
+
+        <button type="submit">送信</button>
+      </form>`,
+          css: `form {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        max-width: 400px;
+      }
+      input, textarea {
+        width: 100%;
+        padding: 8px;
+      }`,
+          js: ``,
+        },
+
+        table: {
+          html: `<table>
+        <thead>
+          <tr>
+            <th>項目</th>
+            <th>内容</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>例</td>
+            <td>サンプル</td>
+          </tr>
+        </tbody>
+      </table>`,
+          css: `table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      th, td {
+        border: 1px solid #ccc;
+        padding: 8px;
+      }`,
+          js: ``,
+        },
+
+        list: {
+          html: `<ul>
+        <li>項目1</li>
+        <li>項目2</li>
+      </ul>
+
+      <ol>
+        <li>手順1</li>
+        <li>手順2</li>
+      </ol>
+
+      <dl>
+        <dt>用語</dt>
+        <dd>説明文</dd>
+      </dl>`,
+          css: `ul, ol, dl {
+        margin-bottom: 20px;
+      }`,
+          js: ``,
+        },
+
+        figure: {
+          html: `<figure>
+        <img src="img/sample6.png" alt="説明文">
+        <figcaption>キャプションを入れてください。</figcaption>
+      </figure>`,
+          css: `figure {
+        text-align: center;
+      }
+      img {
+        max-width: 100%;
+        border-radius: 6px;
+      }`,
+          js: ``,
+        },
+
+        buttons: {
+          html: `<a href="#" class="btn">詳しく見る</a>
+      <button class="btn-primary">送信</button>
+      <button class="btn-secondary">キャンセル</button>`,
+          css: `.btn, .btn-primary, .btn-secondary {
+        padding: 10px 20px;
+        border-radius: 6px;
+        text-decoration: none;
+        display: inline-block;
+        margin-right: 10px;
+      }
+      .btn { background: #333; color: #fff; }
+      .btn-primary { background: #4caf50; color: #fff; border: none; }
+      .btn-secondary { background: #ccc; color: #333; border: none; }`,
+          js: ``,
+        },
+
+        cards: {
+          html: `<section class="cards">
+        <div class="card">
+          <img src="img/sample8.png" alt="">
+          <h3>名称</h3>
+          <p>説明文を入れてください。</p>
+        </div>
+
+        <div class="card">
+          <img src="img/sample8.png" alt="">
+          <h3>名称</h3>
+          <p>説明文を入れてください。</p>
+        </div>
+
+        <div class="card">
+          <img src="img/sample8.png" alt="">
+          <h3>名称</h3>
+          <p>説明文を入れてください。</p>
+        </div>
+      </section>`,
+          css: `.cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 24px;
+        padding: 60px 40px;
+      }
+      .card {
+        background: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        text-align: center;
+      }
+      .card img {
+        width: 100%;
+        border-radius: 6px;
+        margin-bottom: 12px;
+      }`,
+          js: ``,
+        },
+      };
+
+      /* -------------------------
+               DOM取得
+            ------------------------- */
+      const htmlInput = document.getElementById("htmlInput");
+      const cssInput = document.getElementById("cssInput");
+      const jsInput = document.getElementById("jsInput");
+      const preview = document.getElementById("preview");
+      const templateButtons = document.querySelectorAll(".template-btn");
+      const copyBtn = document.getElementById("copyBtn");
+
+      /* -------------------------
+               プレビュー更新
+            ------------------------- */
+      function updatePreview() {
+        const html = htmlInput.value;
+        const css = `<style>${cssInput.value}</style>`;
+        const js = `<script>${jsInput.value}<\/script>`;
+
+        preview.srcdoc = html + css + js;
+      }
+
+      htmlInput.addEventListener("input", updatePreview);
+      cssInput.addEventListener("input", updatePreview);
+      jsInput.addEventListener("input", updatePreview);
+
+      /* -------------------------
+               テンプレート選択
+            ------------------------- */
+      templateButtons.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          templateButtons.forEach((b) => b.classList.remove("active"));
+          btn.classList.add("active");
+
+          const key = btn.dataset.key;
+          const tpl = templates[key];
+
+          htmlInput.value = tpl.html;
+          cssInput.value = tpl.css;
+          jsInput.value = tpl.js;
+
+          updatePreview();
+        });
+      });
+      /* -----------------------------------------
+                コピーボタン
+               ----------------------------------------- */
+      document.querySelectorAll(".copy-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const target = btn.dataset.target;
+          const map = {
+            html: htmlInput,
+            css: cssInput,
+            js: jsInput,
+          };
+          navigator.clipboard.writeText(map[target].value);
+
+          btn.textContent = "コピーしました";
+          setTimeout(() => (btn.textContent = "コピー"), 1500);
+        });
+      });
+
+      /* クリアボタン */
+      document.querySelectorAll(".clear-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const target = btn.dataset.target;
+          const map = {
+            html: htmlInput,
+            css: cssInput,
+            js: jsInput,
+          };
+
+          map[target].value = "";
+          updatePreview();
+
+          btn.textContent = "クリアしました";
+          setTimeout(() => (btn.textContent = "クリア"), 1500);
+        });
+      });
+
+      /* 初期テンプレートを読み込み */
+      document.querySelector('.template-btn[data-key="base"]').click();
+    </script>
+  </body>
+</html>

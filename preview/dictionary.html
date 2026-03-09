@@ -1,0 +1,483 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <title>HTML辞典アプリ</title>
+    <style>
+      body {
+        font-family: "Segoe UI", sans-serif;
+        background: #f5f7fa;
+        margin: 0;
+        padding: 20px;
+      }
+
+      h1 {
+        text-align: center;
+        margin-bottom: 20px;
+      }
+
+      /* -----------------------------------
+         ヘッダー
+      ----------------------------------- */
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px 40px;
+        border-bottom: 1px solid #eee;
+        background: #333;
+      }
+      .nav {
+        display: flex;
+        gap: 20px;
+      }
+
+      .nav a {
+        text-decoration: none;
+        color: #fff;
+        font-weight: bold;
+      }
+
+      .logo {
+        font-size: 20px;
+        color: #fff;
+        font-weight: bold;
+      }
+
+      /* 検索バー */
+      #searchBox {
+        width: 100%;
+        padding: 12px;
+        font-size: 16px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        margin-bottom: 20px;
+        box-sizing: border-box;
+      }
+
+      /* カテゴリ選択 */
+      #categoryFilter {
+        width: 100%;
+        padding: 10px;
+        font-size: 16px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        margin-bottom: 20px;
+      }
+
+      .dictionary-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: #fff;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      .dictionary-table th {
+        background: #4a90e2;
+        color: #fff;
+        padding: 12px;
+        text-align: left;
+      }
+
+      .dictionary-table td {
+        padding: 12px;
+        border-bottom: 1px solid #eee;
+      }
+
+      .dictionary-table tr:hover {
+        background: #f0f8ff;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- ▼ ヘッダー -->
+    <header class="header">
+      <div class="logo">辞典</div>
+      <nav class="nav">
+        <a href="preview.html">プレビュー</a>
+        <a href="howto.html">使用方法</a>
+        <a href="license.html">ライセンス</a>
+      </nav>
+    </header>
+
+    <h1>HTML辞典</h1>
+
+    <input type="text" id="searchBox" placeholder="タグ名・読み・説明で検索" />
+
+    <!-- ▼ カテゴリ選択 -->
+    <select id="categoryFilter">
+      <option value="all">すべてのカテゴリ</option>
+    </select>
+
+    <table class="dictionary-table">
+      <thead>
+        <tr>
+          <th>タグ</th>
+          <th>読み</th>
+          <th>説明</th>
+          <th>代表的な属性</th>
+        </tr>
+      </thead>
+      <tbody id="dictBody">
+        <!-- ▼ ここから辞典データ（カテゴリ付き） -->
+
+        <tr data-category="テキスト">
+          <td>&lt;p&gt;</td>
+          <td>ピー</td>
+          <td>段落（文章のまとまり）を表す</td>
+          <td>class, id</td>
+        </tr>
+
+        <tr data-category="リンク">
+          <td>&lt;a&gt;</td>
+          <td>エー</td>
+          <td>リンクを作成する</td>
+          <td>href, target</td>
+        </tr>
+
+        <tr data-category="メディア">
+          <td>&lt;img&gt;</td>
+          <td>イメージ</td>
+          <td>画像を表示する</td>
+          <td>src, alt, width, height</td>
+        </tr>
+
+        <tr data-category="構造">
+          <td>&lt;div&gt;</td>
+          <td>ディブ</td>
+          <td>ブロック要素をまとめる</td>
+          <td>class, id</td>
+        </tr>
+
+        <!-- ▼ 追加した基本タグ -->
+
+        <tr data-category="構造">
+          <td>&lt;header&gt;</td>
+          <td>ヘッダー</td>
+          <td>ページやセクションの先頭部分</td>
+          <td>class, id</td>
+        </tr>
+
+        <tr data-category="構造">
+          <td>&lt;main&gt;</td>
+          <td>メイン</td>
+          <td>ページの主要コンテンツ</td>
+          <td>class, id</td>
+        </tr>
+
+        <tr data-category="構造">
+          <td>&lt;footer&gt;</td>
+          <td>フッター</td>
+          <td>ページの末尾部分</td>
+          <td>class, id</td>
+        </tr>
+
+        <tr data-category="構造">
+          <td>&lt;section&gt;</td>
+          <td>セクション</td>
+          <td>章やまとまりを表す</td>
+          <td>class, id</td>
+        </tr>
+        <tr data-category="構造">
+          <td>&lt;article&gt;</td>
+          <td>アーティクル</td>
+          <td>独立した記事やコンテンツ</td>
+          <td>class, id</td>
+        </tr>
+        <tr data-category="構造">
+          <td>&lt;nav&gt;</td>
+          <td>ナブ</td>
+          <td>ナビゲーション領域</td>
+          <td>class, id</td>
+        </tr>
+        <tr data-category="構造">
+          <td>&lt;aside&gt;</td>
+          <td>アサイド</td>
+          <td>補足情報やサイドバー</td>
+          <td>class, id</td>
+        </tr>
+        <tr data-category="構造">
+          <td>&lt;span&gt;</td>
+          <td>スパン</td>
+          <td>インライン要素をまとめる</td>
+          <td>class, id</td>
+        </tr>
+
+        <tr data-category="テキスト">
+          <td>&lt;strong&gt;</td>
+          <td>ストロング</td>
+          <td>重要な強調（太字）</td>
+          <td>class</td>
+        </tr>
+
+        <tr data-category="テキスト">
+          <td>&lt;br&gt;</td>
+          <td>ビーアール</td>
+          <td>改行を挿入する</td>
+          <td>なし</td>
+        </tr>
+
+        <tr data-category="テキスト">
+          <td>&lt;em&gt;</td>
+          <td>エム</td>
+          <td>弱い強調（斜体）</td>
+          <td>class</td>
+        </tr>
+        <tr data-category="テキスト">
+          <td>&lt;mark&gt;</td>
+          <td>マーク</td>
+          <td>ハイライト表示</td>
+          <td>class</td>
+        </tr>
+        <tr data-category="テキスト">
+          <td>&lt;code&gt;</td>
+          <td>コード</td>
+          <td>コードを表す</td>
+          <td>class</td>
+        </tr>
+        <tr data-category="テキスト">
+          <td>&lt;pre&gt;</td>
+          <td>プレ</td>
+          <td>整形済みテキスト</td>
+          <td>class</td>
+        </tr>
+
+        <tr data-category="メディア">
+          <td>&lt;video&gt;</td>
+          <td>ビデオ</td>
+          <td>動画を表示する</td>
+          <td>src, controls</td>
+        </tr>
+        <tr data-category="メディア">
+          <td>&lt;audio&gt;</td>
+          <td>オーディオ</td>
+          <td>音声を再生する</td>
+          <td>src, controls</td>
+        </tr>
+        <tr data-category="メディア">
+          <td>&lt;source&gt;</td>
+          <td>ソース</td>
+          <td>動画や音声のソース指定</td>
+          <td>src, type</td>
+        </tr>
+        <tr data-category="メディア">
+          <td>&lt;figure&gt;</td>
+          <td>フィギュア</td>
+          <td>図や画像をまとめる</td>
+          <td>class</td>
+        </tr>
+        <tr data-category="メディア">
+          <td>&lt;figcaption&gt;</td>
+          <td>フィグキャプション</td>
+          <td>図の説明文</td>
+          <td>class</td>
+        </tr>
+
+        <tr data-category="リスト">
+          <td>&lt;ul&gt;</td>
+          <td>ユーエル</td>
+          <td>箇条書きリスト</td>
+          <td>class</td>
+        </tr>
+        <tr data-category="リスト">
+          <td>&lt;ol&gt;</td>
+          <td>オーエル</td>
+          <td>番号付きリスト</td>
+          <td>class</td>
+        </tr>
+        <tr data-category="リスト">
+          <td>&lt;li&gt;</td>
+          <td>エルアイ</td>
+          <td>リスト項目</td>
+          <td>なし</td>
+        </tr>
+
+        <tr data-category="表">
+          <td>&lt;table&gt;</td>
+          <td>テーブル</td>
+          <td>表を作成する</td>
+          <td>class</td>
+        </tr>
+        <tr data-category="表">
+          <td>&lt;tr&gt;</td>
+          <td>ティーアール</td>
+          <td>表の行</td>
+          <td>なし</td>
+        </tr>
+        <tr data-category="表">
+          <td>&lt;th&gt;</td>
+          <td>ティーエイチ</td>
+          <td>見出しセル</td>
+          <td>scope</td>
+        </tr>
+        <tr data-category="表">
+          <td>&lt;td&gt;</td>
+          <td>ティーディー</td>
+          <td>データセル</td>
+          <td>colspan, rowspan</td>
+        </tr>
+
+        <tr data-category="フォーム">
+          <td>&lt;input&gt;</td>
+          <td>インプット</td>
+          <td>フォーム入力欄</td>
+          <td>type, name, value</td>
+        </tr>
+
+        <tr data-category="フォーム">
+          <td>&lt;button&gt;</td>
+          <td>ボタン</td>
+          <td>ボタンを作成する</td>
+          <td>type, class</td>
+        </tr>
+
+        <tr data-category="フォーム">
+          <td>&lt;form&gt;</td>
+          <td>フォーム</td>
+          <td>フォーム全体</td>
+          <td>action, method</td>
+        </tr>
+        <tr data-category="フォーム">
+          <td>&lt;label&gt;</td>
+          <td>ラベル</td>
+          <td>入力欄の説明</td>
+          <td>for</td>
+        </tr>
+        <tr data-category="フォーム">
+          <td>&lt;textarea&gt;</td>
+          <td>テキストエリア</td>
+          <td>複数行の入力欄</td>
+          <td>name, rows, cols</td>
+        </tr>
+        <tr data-category="フォーム">
+          <td>&lt;select&gt;</td>
+          <td>セレクト</td>
+          <td>プルダウンメニュー</td>
+          <td>name</td>
+        </tr>
+        <tr data-category="フォーム">
+          <td>&lt;option&gt;</td>
+          <td>オプション</td>
+          <td>選択肢</td>
+          <td>value</td>
+        </tr>
+        <tr data-category="フォーム">
+          <td>&lt;fieldset&gt;</td>
+          <td>フィールドセット</td>
+          <td>フォーム項目のグループ化</td>
+          <td>class</td>
+        </tr>
+        <tr data-category="フォーム">
+          <td>&lt;legend&gt;</td>
+          <td>レジェンド</td>
+          <td>グループのタイトル</td>
+          <td>class</td>
+        </tr>
+
+        <tr data-category="メタ情報">
+          <td>&lt;html&gt;</td>
+          <td>エイチティーエムエル</td>
+          <td>HTML文書のルート要素。lang属性で文書の言語を指定</td>
+          <td>lang</td>
+        </tr>
+
+        <tr data-category="メタ情報">
+          <td>&lt;head&gt;</td>
+          <td>ヘッド</td>
+          <td>メタ情報・設定・外部リソースの読み込みをまとめる</td>
+          <td>なし</td>
+        </tr>
+
+        <tr data-category="メタ情報">
+          <td>&lt;meta&gt;</td>
+          <td>メタ</td>
+          <td>文字コード・SEO・表示設定などのメタ情報を指定</td>
+          <td>charset, name, content</td>
+        </tr>
+
+        <tr data-category="メタ情報">
+          <td>&lt;title&gt;</td>
+          <td>タイトル</td>
+          <td>ブラウザのタブに表示されるページタイトル</td>
+          <td>なし</td>
+        </tr>
+
+        <tr data-category="メタ情報">
+          <td>&lt;link&gt;</td>
+          <td>リンク</td>
+          <td>外部CSSなどのリソースを読み込む</td>
+          <td>rel, href</td>
+        </tr>
+
+        <tr data-category="メタ情報">
+          <td>&lt;script&gt;</td>
+          <td>スクリプト</td>
+          <td>JavaScriptを読み込む。外部ファイルはsrc属性</td>
+          <td>src, defer</td>
+        </tr>
+
+        <tr data-category="メタ情報">
+          <td>&lt;base&gt;</td>
+          <td>ベース</td>
+          <td>相対URLの基準となるURLを指定する</td>
+          <td>href, target</td>
+        </tr>
+
+        <tr data-category="メタ情報">
+          <td>&lt;style&gt;</td>
+          <td>スタイル</td>
+          <td>CSSをHTML内に直接記述する</td>
+          <td>type</td>
+        </tr>
+
+        <tr data-category="メタ情報">
+          <td>&lt;noscript&gt;</td>
+          <td>ノースクリプト</td>
+          <td>JavaScriptが無効な環境で代替内容を表示する</td>
+          <td>なし</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <script>
+      const searchBox = document.getElementById("searchBox");
+      const categoryFilter = document.getElementById("categoryFilter");
+      const rows = document.querySelectorAll("#dictBody tr");
+
+      /* ▼ カテゴリ一覧を自動生成 */
+      const categories = new Set();
+      rows.forEach((row) => {
+        categories.add(row.dataset.category);
+      });
+
+      categories.forEach((cat) => {
+        const option = document.createElement("option");
+        option.value = cat;
+        option.textContent = cat;
+        categoryFilter.appendChild(option);
+      });
+
+      /* ▼ 検索 + カテゴリフィルタ */
+      function filterDictionary() {
+        const keyword = searchBox.value.toLowerCase();
+        const selectedCategory = categoryFilter.value;
+
+        rows.forEach((row) => {
+          const text = row.innerText.toLowerCase();
+          const rowCategory = row.dataset.category;
+
+          const matchKeyword = text.includes(keyword);
+          const matchCategory =
+            selectedCategory === "all" || selectedCategory === rowCategory;
+
+          row.style.display = matchKeyword && matchCategory ? "" : "none";
+        });
+      }
+
+      searchBox.addEventListener("keyup", filterDictionary);
+      categoryFilter.addEventListener("change", filterDictionary);
+    </script>
+  </body>
+</html>

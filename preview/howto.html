@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <title>使用方法 - HTML辞典アプリ</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <style>
+      body {
+        font-family: "Segoe UI", sans-serif;
+        background: #f5f7fa;
+        margin: 0;
+        padding: 0;
+      }
+
+      /* ヘッダー */
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px 40px;
+        border-bottom: 1px solid #eee;
+        background: #333;
+      }
+
+      .nav {
+        display: flex;
+        gap: 20px;
+      }
+
+      .nav a {
+        text-decoration: none;
+        color: #fff;
+        font-weight: bold;
+      }
+
+      .logo {
+        font-size: 20px;
+        color: #fff;
+        font-weight: bold;
+      }
+
+      /* 本文レイアウト */
+      .container {
+        max-width: 900px;
+        margin: 40px auto;
+        padding: 0 20px;
+      }
+
+      h1 {
+        margin-bottom: 20px;
+        font-size: 28px;
+      }
+
+      section {
+        background: #fff;
+        padding: 20px 25px;
+        margin-bottom: 20px;
+        border-radius: 8px;
+        border: 1px solid #ddd;
+      }
+
+      h2 {
+        margin-top: 0;
+        font-size: 22px;
+        color: #333;
+      }
+
+      ul {
+        padding-left: 20px;
+      }
+
+      li {
+        margin-bottom: 8px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- ▼ ヘッダー -->
+    <header class="header">
+      <div class="logo">使用方法</div>
+      <nav class="nav">
+        <a href="preview.html">プレビュー</a>
+        <a href="dictionary.html">辞典</a>
+        <a href="license.html">ライセンス</a>
+      </nav>
+    </header>
+
+    <!-- ▼ 本文 -->
+    <div class="container">
+      <h1>アプリの使用方法</h1>
+
+      <section>
+        <h2>1. このアプリについて</h2>
+        <p>
+          このアプリは、HTML・CSS・JavaScript
+          を入力すると右側のプレビュー画面に即時反映される学習用ツールです。
+          左側のテンプレートボタンを使うことで、よく使う基本構造をすぐに呼び出せます。
+        </p>
+      </section>
+
+      <section>
+        <h2>2. 画面構成</h2>
+        <ul>
+          <li>
+            <strong>ヘッダー：</strong>
+            上部に「プレビュー」「使用方法」「辞典」へのリンクがあります。
+          </li>
+          <li>
+            <strong>左側（サイドバー）：</strong> テンプレート選択、HTML/CSS/JS
+            の入力欄、コピー・クリアボタンがあります。
+          </li>
+          <li>
+            <strong>右側（プレビュー）：</strong>
+            入力したコードがリアルタイムで表示されます。
+          </li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>3. テンプレートの使い方</h2>
+        <p>
+          サイドバーのテンプレートボタンをクリックすると、以下のテンプレートが読み込まれます。
+        </p>
+        <ul>
+          <li>① HTML初期設定</li>
+          <li>② セクション構造</li>
+          <li>③ フォーム基本形</li>
+          <li>④ テーブル基本形</li>
+          <li>⑤ リスト構造</li>
+          <li>⑥ 画像＋キャプション</li>
+          <li>⑦ ボタンセット</li>
+          <li>⑧ レスポンシブグリッドカード</li>
+        </ul>
+        <p>
+          選択すると HTML・CSS・JavaScript
+          の各欄に自動でコードが入力され、プレビューが更新されます。
+        </p>
+      </section>
+
+      <section>
+        <h2>4. コード入力欄の使い方</h2>
+        <ul>
+          <li><strong>HTML欄：</strong> ページの構造を記述します。</li>
+          <li><strong>CSS欄：</strong> デザインやレイアウトを記述します。</li>
+          <li><strong>JavaScript欄：</strong> 動きや処理を記述します。</li>
+        </ul>
+        <p>入力すると自動でプレビューが更新されます。</p>
+      </section>
+
+      <section>
+        <h2>5. コピー・クリアボタン</h2>
+        <ul>
+          <li>
+            <strong>コピー：</strong>
+            入力欄の内容をクリップボードにコピーします。
+          </li>
+          <li><strong>クリア：</strong> 入力欄の内容を空にします。</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>6. プレビューについて</h2>
+        <p>
+          プレビュー画面には、入力した HTML・CSS・JavaScript
+          が合成されて表示されます。
+          外部ファイルの読み込みには対応していないため、外部URLの画像やCSSが正しく表示されない場合があります。
+        </p>
+      </section>
+
+      <section>
+        <h2>7. 初期状態</h2>
+        <p>
+          ページを開くと、自動的に「①
+          HTML初期設定」テンプレートが読み込まれます。
+        </p>
+      </section>
+    </div>
+  </body>
+</html>

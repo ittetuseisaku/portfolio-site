@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <title>WEBアプリ紹介サイト</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Yuji+Boku&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      .logo {
+        font-family: "Yuji Boku", serif;
+        font-size: 1.8rem;
+        font-weight: 600;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      /* -----------------------------------------
+       ページ全体の基本設定
+    ----------------------------------------- */
+      body {
+        margin: 0;
+        font-family: system-ui, sans-serif;
+        background: #f5f5f5;
+      }
+
+      /* -----------------------------------------
+       ヘッダー（上部の黒いバー）
+    ----------------------------------------- */
+      header {
+        background: #222; /* 背景色 */
+        color: #fff; /* 文字色 */
+        padding: 16px 40px; /* 上下16px 左右40px */
+        display: flex; /* 横並び */
+        justify-content: space-between; /* 左右に配置 */
+        align-items: center; /* 縦位置を中央に */
+      }
+
+      /* ヘッダー内のリンク */
+      header nav a {
+        color: #fff;
+        margin-left: 20px;
+        text-decoration: none;
+        font-weight: 600;
+      }
+
+      /*Xアイコン*/
+      .x-icon img {
+        transition: opacity 0.2s ease;
+      }
+
+      .x-icon:hover img {
+        opacity: 0.7;
+      }
+
+      /* -----------------------------------------
+       ヒーローエリア（大きなタイトル部分）
+    ----------------------------------------- */
+      .hero {
+        background: linear-gradient(135deg, #0078d4, #00a6ff);
+        color: #fff;
+        padding: 80px 20px;
+        text-align: center;
+      }
+
+      .hero h1 {
+        font-size: 2.5rem;
+        margin-bottom: 10px;
+      }
+
+      .hero p {
+        font-size: 1.3rem;
+        opacity: 0.95;
+      }
+
+      /* -----------------------------------------
+      更新履歴スクロールバー
+    ----------------------------------------- */
+      .changelog::-webkit-scrollbar {
+        width: 8px;
+      }
+
+      .changelog::-webkit-scrollbar-thumb {
+        background: #ccc;
+        border-radius: 4px;
+      }
+
+      .changelog::-webkit-scrollbar-thumb:hover {
+        background: #aaa;
+      }
+
+      /* -----------------------------------------
+      更新履歴
+    ----------------------------------------- */
+
+      .changelog {
+        max-width: 1000px;
+        margin: 40px auto 20px;
+        padding: 20px;
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+
+        max-height: 200px;
+        overflow-y: auto;
+      }
+
+      .changelog h2 {
+        margin-top: 0;
+      }
+
+      .changelog ul {
+        margin: 0;
+        padding-left: 20px;
+        color: #555;
+      }
+
+      /* -----------------------------------------
+       アプリ一覧（3列カード）
+    ----------------------------------------- */
+      .app-list {
+        display: grid; /* グリッドレイアウト */
+        grid-template-columns: repeat(3, 1fr); /* 横3列 */
+        gap: 20px; /* カード間の余白 */
+        max-width: 1000px; /* 最大幅 */
+        margin: 40px auto; /* 上下40px、左右中央 */
+        padding: 0 20px; /* スマホで左右に余白 */
+      }
+
+      /* カード本体 */
+      .app-card {
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+      }
+
+      /* カードの画像 */
+      .app-card img {
+        transition: transform 0.3s;
+      }
+      .app-card img:hover {
+        transform: scale(1.03);
+      }
+
+      /* カード内のテキスト部分 */
+      .app-card-body {
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .app-card-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+      }
+
+      .app-card-desc {
+        font-size: 0.9rem;
+        color: #555;
+        flex: 1; /* 説明文が伸びてもレイアウトが崩れない */
+      }
+
+      /* -----------------------------------------
+       フッター
+    ----------------------------------------- */
+      footer {
+        background: #222;
+        color: #ccc;
+        text-align: center;
+        padding: 20px;
+        margin-top: 40px;
+      }
+
+      /* -----------------------------------------
+       レスポンシブ対応（画面幅が狭いとき）
+    ----------------------------------------- */
+      @media (max-width: 900px) {
+        .app-list {
+          grid-template-columns: repeat(2, 1fr); /* 2列に変更 */
+        }
+      }
+
+      @media (max-width: 600px) {
+        .app-list {
+          grid-template-columns: 1fr; /* 1列に変更 */
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- -----------------------------------------
+       ヘッダー
+  ----------------------------------------- -->
+    <header>
+      <div class="logo">一徹制作</div>
+      <nav>
+        <a href="#apps">アプリ一覧</a>
+        <a href="#changelog">更新履歴</a>
+        <a href="https://x.com/CJeIDihkS80AiXS" target="_blank" class="x-icon">
+          <img src="img/logo-white.png" alt="X" width="22" height="22" />
+        </a>
+      </nav>
+    </header>
+
+    <!-- -----------------------------------------
+       ヒーローエリア（大きなタイトル）
+  ----------------------------------------- -->
+    <section class="hero">
+      <h1>開発したWEBアプリの紹介</h1>
+      <p>開発したツールやサービスをまとめています。</p>
+    </section>
+    <!-- -----------------------------------------
+       更新履歴
+  ----------------------------------------- -->
+    <section id="changelog" class="changelog">
+      <h2>更新履歴</h2>
+      <ul>
+        <li>
+          2026/03/07/ページ公開、プレビューアプリ、タイマーアプリ、カウンターアプリ
+        </li>
+      </ul>
+    </section>
+    <!-- -----------------------------------------
+       アプリ一覧（3列カード）
+  ----------------------------------------- -->
+    <section id="apps" class="app-list">
+      <!-- カード1 -->
+      <div class="app-card">
+        <a href="https://ittetuseisaku.github.io/preview/" target="_blank">
+          <img src="img/preview.png" />
+        </a>
+        <div class="app-card-body">
+          <div class="app-card-title">HTML、CSS、JSプレビュー</div>
+          <div class="app-card-desc">
+            HTML・CSS・JavaScript
+            のコードをコピペして、その場で表示を確認できるプレビューツールです。<br />簡易HTML辞典付き。
+          </div>
+        </div>
+      </div>
+
+      <!-- カード2 -->
+      <div class="app-card">
+        <a href="https://ittetuseisaku.github.io/timer/" target="_blank">
+          <img src="img/timer.png" />
+        </a>
+        <div class="app-card-body">
+          <div class="app-card-title">マルチタイマー</div>
+          <div class="app-card-desc">
+            複数のカウントダウンを同時に使えるマルチタイマー<br />
+            時間を入力して START
+            を押すとカウントが始まり、0になるとアラームが鳴ります。
+          </div>
+        </div>
+      </div>
+
+      <!-- カード3 -->
+      <div class="app-card">
+        <a href="https://ittetuseisaku.github.io/counter/" target="_blank">
+          <img src="img/counter.png" />
+        </a>
+        <div class="app-card-body">
+          <div class="app-card-title">マルチカウンター</div>
+          <div class="app-card-desc">
+            ブラウザを閉じる時に、現在の画面状態が自動的にローカルストレージへ保存されます。<br />
+            任意の場所に保存したい場合は「保存（PCに）」ボタンから JSON
+            をダウンロードできます。
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- -----------------------------------------
+       フッター
+  ----------------------------------------- -->
+    <footer>© 2026 一徹制作</footer>
+  </body>
+</html>

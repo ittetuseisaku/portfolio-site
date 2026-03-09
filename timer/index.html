@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <title>マルチカウントダウンタイマー</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        background: #111;
+        color: #eee;
+        padding: 20px;
+      }
+      .header-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px; /* ← 見出しの下に余白 */
+      }
+
+      .header-links a {
+        color: #3b82f6;
+        margin-left: 15px; /* リンク同士の間隔 */
+        text-decoration: none;
+      }
+
+      .header-links a:hover {
+        text-decoration: underline;
+      }
+      .app {
+        max-width: 600px;
+        margin: auto;
+      }
+      .timer {
+        background: #222;
+        padding: 12px;
+        margin-bottom: 10px;
+        border-radius: 8px;
+        border: 1px solid #444;
+      }
+      .row {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 8px;
+      }
+      input {
+        padding: 6px;
+        width: 100%;
+        background: #333;
+        border: 1px solid #555;
+        color: #eee;
+        border-radius: 4px;
+      }
+      .display {
+        font-size: 1.6rem;
+        font-weight: bold;
+        letter-spacing: 0.1em;
+      }
+      button {
+        cursor: pointer;
+        padding: 6px 10px;
+        border-radius: 4px;
+        border: none;
+      }
+      .start {
+        background: #22c55e;
+        color: #fff;
+      }
+      .stop {
+        background: #f59e0b;
+        color: #fff;
+      }
+      .reset {
+        background: #3b82f6;
+        color: #fff;
+      }
+      .remove {
+        background: #ef4444;
+        color: #fff;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <div class="header-row">
+        <h2>マルチカウントダウンタイマー</h2>
+        <div class="header-links">
+          <a href="usage.html">使用方法</a>
+          <a href="license.html">ライセンス</a>
+        </div>
+      </div>
+
+      <button id="add">＋ 新しいタイマー</button>
+      <div id="timers"></div>
+    </div>
+
+    <!-- アラーム音 -->
+    <audio id="alarmSound">
+      <source src="sounds/universfield-digital-alarm.mp3" type="audio/mpeg" />
+    </audio>
+
+    <script>
+      const timers = [];
+      let idCounter = 1;
+
+      const timersEl = document.getElementById("timers");
+      const addBtn = document.getElementById("add");
+      const alarmSound = document.getElementById("alarmSound");
+
+      function format(ms) {
+        const total = Math.max(0, ms);
+        const h = String(Math.floor(total / 3600000)).padStart(2, "0");
+        const m = String(Math.floor((total % 3600000) / 60000)).padStart(
+          2,
+          "0",
+        );
+        const s = String(Math.floor((total % 60000) / 1000)).padStart(2, "0");
+        const ms3 = String(total % 1000).padStart(3, "0");
+        return `${h}:${m}:${s}.${ms3}`;
+      }
+
+      function createTimer() {
+        const timer = {
+          id: idCounter++,
+          total: 0,
+          remaining: 0,
+          running: false,
+          interval: null,
+        };
+        timers.push(timer);
+
+        const wrap = document.createElement("div");
+        wrap.className = "timer";
+        wrap.dataset.id = timer.id;
+
+        wrap.innerHTML = `
+    <div class="row">
+      <input type="number" class="h" placeholder="時" min="0">
+      <input type="number" class="m" placeholder="分" min="0" max="59">
+      <input type="number" class="s" placeholder="秒" min="0" max="59">
+      <input type="number" class="ms" placeholder="ミリ秒" min="0" max="999">
+    </div>
+    <div class="display">00:00:00.000</div>
+    <div class="controls row">
+      <button class="start">Start</button>
+      <button class="stop" disabled>Stop</button>
+      <button class="reset" disabled>Reset</button>
+      <button class="remove">×</button>
+    </div>
+  `;
+
+        const h = wrap.querySelector(".h");
+        const m = wrap.querySelector(".m");
+        const s = wrap.querySelector(".s");
+        const ms = wrap.querySelector(".ms");
+        const display = wrap.querySelector(".display");
+        const startBtn = wrap.querySelector(".start");
+        const stopBtn = wrap.querySelector(".stop");
+        const resetBtn = wrap.querySelector(".reset");
+        const removeBtn = wrap.querySelector(".remove");
+
+        function render() {
+          display.textContent = format(timer.remaining);
+        }
+
+        function start() {
+          const hours = Number(h.value) || 0;
+          const mins = Number(m.value) || 0;
+          const secs = Number(s.value) || 0;
+          const millis = Number(ms.value) || 0;
+
+          if (!timer.running && timer.remaining === 0) {
+            timer.total = hours * 3600000 + mins * 60000 + secs * 1000 + millis;
+            timer.remaining = timer.total;
+          }
+
+          if (timer.remaining <= 0) return;
+
+          timer.running = true;
+          startBtn.disabled = true;
+          stopBtn.disabled = false;
+          resetBtn.disabled = false;
+
+          let last = Date.now();
+          timer.interval = setInterval(() => {
+            const now = Date.now();
+            timer.remaining -= now - last;
+            last = now;
+
+            if (timer.remaining <= 0) {
+              timer.remaining = 0;
+              clearInterval(timer.interval);
+              timer.running = false;
+              render();
+              alarmSound.play();
+              return;
+            }
+
+            render();
+          }, 10); // 10ms 更新
+        }
+
+        function stop() {
+          timer.running = false;
+          clearInterval(timer.interval);
+          startBtn.disabled = false;
+          stopBtn.disabled = true;
+
+          // ★ アラーム音を止める
+          alarmSound.pause();
+          alarmSound.currentTime = 0;
+        }
+
+        function reset() {
+          timer.running = false;
+          clearInterval(timer.interval);
+          timer.remaining = 0;
+          render();
+          startBtn.disabled = false;
+          stopBtn.disabled = true;
+          resetBtn.disabled = false;
+
+          // ★ アラーム音を止める
+          alarmSound.pause();
+          alarmSound.currentTime = 0;
+        }
+
+        function remove() {
+          clearInterval(timer.interval);
+          wrap.remove();
+          const idx = timers.findIndex((t) => t.id === timer.id);
+          if (idx !== -1) timers.splice(idx, 1);
+
+          // ★ アラーム音を止める
+          alarmSound.pause();
+          alarmSound.currentTime = 0;
+        }
+
+        startBtn.addEventListener("click", start);
+        stopBtn.addEventListener("click", stop);
+        resetBtn.addEventListener("click", reset);
+        removeBtn.addEventListener("click", remove);
+
+        render();
+        return wrap;
+      }
+
+      addBtn.addEventListener("click", () => {
+        timersEl.appendChild(createTimer());
+      });
+    </script>
+  </body>
+</html>
