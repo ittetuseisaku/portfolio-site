@@ -5,14 +5,12 @@
     <title>マルチカウンターアプリ</title>
 
     <style>
-      /* 全体の基本スタイル */
       body {
         font-family: sans-serif;
         background: #f5f5f5;
         padding: 20px;
       }
 
-      /* 中央の白いカード */
       .container {
         max-width: 900px;
         margin: 0 auto;
@@ -54,12 +52,12 @@
         background: #d32f2f;
       }
 
-      /* カウンターの箱 */
       .counter {
         background: #fafafa;
         padding: 15px;
         border-radius: 6px;
         border: 1px solid #ddd;
+        word-break: break-all;
       }
 
       .title {
@@ -72,14 +70,12 @@
         margin: 10px 0;
       }
 
-      /* カウンター一覧のグリッド */
       #counterList {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
         gap: 12px;
       }
 
-      /* ライセンスモーダル */
       .modal {
         display: none;
         position: fixed;
@@ -116,7 +112,6 @@
         border: 1px solid #ddd;
       }
 
-      /* h2 の右端にライセンスボタンを固定 */
       .header-area {
         position: relative;
         margin-bottom: 10px;
@@ -147,17 +142,14 @@
         </button>
       </div>
 
-      <!-- タイトル入力欄 -->
       <label>タイトル（空欄でもOK）</label><br />
       <input type="text" id="counterTitle" placeholder="例：台数" />
       <button id="clearTitleBtn" onclick="clearTitle()">クリア</button>
 
-      <!-- カウンター追加 -->
       <button onclick="addCounter()">カウンターを追加</button>
 
       <hr />
 
-      <!-- 全体操作 -->
       <button class="danger" onclick="clearAllCounts()">
         全カウントを0にする
       </button>
@@ -165,7 +157,6 @@
         全カウンター削除
       </button>
 
-      <!-- 保存関連 -->
       <button onclick="saveToFile()">保存（PCに）</button>
       <button onclick="document.getElementById('fileInput').click()">
         読み込み（ファイル）
@@ -173,13 +164,13 @@
 
       <p style="font-size: 12px; color: #666">
         ※自動保存データはブラウザの履歴・キャッシュ削除で消える場合があります。<br />
-        重要なデータは「保存（PCに）」から JSON をバックアップしてください。
+        重要なデータは「保存（PCに）」から JSON をバックアップしてください。<br />
+        ※アプリ更新後に表示が崩れる・カウンターが復活するなどの不具合が出た場合は、<br />
+        ブラウザのキャッシュ削除または localStorage のクリアを行ってください。
       </p>
 
-      <!-- カウンター一覧 -->
       <div id="counterList"></div>
 
-      <!-- ファイル読み込み用 input（非表示） -->
       <input
         type="file"
         id="fileInput"
@@ -188,14 +179,70 @@
       />
     </div>
 
-    <!-- SortableJS -->
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 
     <script>
       window.onload = loadFromLocalStorage;
-      /*-----------------------------------------
-        ① 自動保存（localStorage）
-      -----------------------------------------*/
+
+      function sanitizeText(text) {
+        return String(text).replace(
+          /[<>&"'`]/g,
+          (c) =>
+            ({
+              "<": "&lt;",
+              ">": "&gt;",
+              "&": "&amp;",
+              '"': "&quot;",
+              "'": "&#39;",
+              "`": "&#96;",
+            })[c],
+        );
+      }
+
+      function createCounterElement(title, number) {
+        const container = document.createElement("div");
+        container.className = "counter";
+        container.dataset.baseTitle = title;
+
+        const titleDiv = document.createElement("div");
+        titleDiv.className = "title";
+        titleDiv.textContent = title;
+
+        const numberDiv = document.createElement("div");
+        numberDiv.className = "number";
+        numberDiv.textContent = number;
+
+        const plusBtn = document.createElement("button");
+        plusBtn.textContent = "＋";
+        plusBtn.onclick = () => changeCount(numberDiv, 1);
+
+        const minusBtn = document.createElement("button");
+        minusBtn.textContent = "－";
+        minusBtn.onclick = () => changeCount(numberDiv, -1);
+
+        const resetBtn = document.createElement("button");
+        resetBtn.textContent = "リセット";
+        resetBtn.onclick = () => (numberDiv.textContent = 0);
+
+        const deleteBtn = document.createElement("button");
+        deleteBtn.className = "danger";
+        deleteBtn.textContent = "削除";
+        deleteBtn.onclick = () => {
+          container.remove();
+          updateTitles();
+          saveToLocalStorage();
+        };
+
+        container.appendChild(titleDiv);
+        container.appendChild(numberDiv);
+        container.appendChild(plusBtn);
+        container.appendChild(minusBtn);
+        container.appendChild(resetBtn);
+        container.appendChild(deleteBtn);
+
+        return container;
+      }
+
       function saveToLocalStorage() {
         const counters = Array.from(document.querySelectorAll(".counter")).map(
           (c) => ({
@@ -203,43 +250,34 @@
             number: c.querySelector(".number").textContent,
           }),
         );
-
         localStorage.setItem("multiCounterData", JSON.stringify(counters));
       }
-      /*自動読み込み*/
+
       function loadFromLocalStorage() {
-        const data = localStorage.getItem("multiCounterData");
-        if (!data) return;
+        try {
+          const data = localStorage.getItem("multiCounterData");
+          if (!data) return;
 
-        const counters = JSON.parse(data);
-        document.getElementById("counterList").innerHTML = "";
+          const counters = JSON.parse(data);
+          document.getElementById("counterList").innerHTML = "";
 
-        counters.forEach((item) => {
-          const container = document.createElement("div");
-          container.className = "counter";
-          container.dataset.baseTitle = item.title;
+          counters.forEach((item) => {
+            const title = item.title || "カウンター";
+            const number = Number(item.number);
+            const safeNumber = Number.isFinite(number) ? number : 0;
 
-          container.innerHTML = `
-      <div class="title">${item.title}</div>
-      <div class="number">${item.number}</div>
-      <button onclick="changeCount(this, 1)">＋</button>
-      <button onclick="changeCount(this, -1)">－</button>
-      <button onclick="resetCount(this)">リセット</button>
-      <button class="danger" onclick="deleteCounter(this)">削除</button>
-    `;
+            const el = createCounterElement(title, safeNumber);
+            document.getElementById("counterList").appendChild(el);
+          });
 
-          document.getElementById("counterList").appendChild(container);
-        });
-
-        updateTitles();
+          updateTitles();
+        } catch (e) {
+          console.error("localStorage 読み込みエラー:", e);
+        }
       }
 
-      /* ブラウザを閉じる前に自動保存 */
       window.addEventListener("beforeunload", saveToLocalStorage);
 
-      /*-----------------------------------------
-        ② JSON を PC に保存（手動保存）
-      -----------------------------------------*/
       function saveToFile() {
         const counters = Array.from(document.querySelectorAll(".counter")).map(
           (c) => ({
@@ -254,17 +292,12 @@
 
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
-
         a.href = url;
         a.download = "counters.json";
         a.click();
-
         URL.revokeObjectURL(url);
       }
 
-      /*-----------------------------------------
-        ③ JSON ファイルを読み込んで復元
-      -----------------------------------------*/
       document
         .getElementById("fileInput")
         .addEventListener("change", function () {
@@ -273,37 +306,30 @@
 
           const reader = new FileReader();
           reader.onload = function (e) {
-            const data = JSON.parse(e.target.result);
+            try {
+              const data = JSON.parse(e.target.result);
+              document.getElementById("counterList").innerHTML = "";
 
-            document.getElementById("counterList").innerHTML = "";
+              data.forEach((item) => {
+                const title = sanitizeText(item.title || "カウンター");
+                const number = Number(item.number);
+                const safeNumber = Number.isFinite(number) ? number : 0;
 
-            data.forEach((item) => {
-              const container = document.createElement("div");
-              container.className = "counter";
-              container.dataset.baseTitle = item.title;
+                const el = createCounterElement(title, safeNumber);
+                document.getElementById("counterList").appendChild(el);
+              });
 
-              container.innerHTML = `
-              <div class="title">${item.title}</div>
-              <div class="number">${item.number}</div>
-              <button onclick="changeCount(this, 1)">＋</button>
-              <button onclick="changeCount(this, -1)">－</button>
-              <button onclick="resetCount(this)">リセット</button>
-              <button class="danger" onclick="deleteCounter(this)">削除</button>
-            `;
-
-              document.getElementById("counterList").appendChild(container);
-            });
-
-            updateTitles();
-            alert("読み込みました");
+              updateTitles();
+              saveToLocalStorage();
+              alert("読み込みました");
+            } catch {
+              alert("JSON が不正です");
+            }
           };
 
           reader.readAsText(file);
         });
 
-      /*-----------------------------------------
-        カウンター基本機能
-      -----------------------------------------*/
       function clearTitle() {
         document.getElementById("counterTitle").value = "";
       }
@@ -312,31 +338,19 @@
         let title = document.getElementById("counterTitle").value.trim();
         if (!title) title = "カウンター";
 
-        const container = document.createElement("div");
-        container.className = "counter";
-        container.dataset.baseTitle = title;
+        const el = createCounterElement(title, 0);
+        document.getElementById("counterList").appendChild(el);
 
-        container.innerHTML = `
-          <div class="title">${title}</div>
-          <div class="number">0</div>
-          <button onclick="changeCount(this, 1)">＋</button>
-          <button onclick="changeCount(this, -1)">－</button>
-          <button onclick="resetCount(this)">リセット</button>
-          <button class="danger" onclick="deleteCounter(this)">削除</button>
-        `;
-
-        document.getElementById("counterList").appendChild(container);
         updateTitles();
+        saveToLocalStorage();
       }
 
       function updateTitles() {
-        const counters = Array.from(
-          document.querySelectorAll("#counterList .counter"),
-        );
+        const counters = Array.from(document.querySelectorAll(".counter"));
         const groups = {};
 
         counters.forEach((c) => {
-          const base = c.dataset.baseTitle;
+          const base = c.dataset.baseTitle || "カウンター";
           if (!groups[base]) groups[base] = [];
           groups[base].push(c);
         });
@@ -348,40 +362,34 @@
         }
       }
 
-      function changeCount(btn, delta) {
-        const numberDiv = btn.parentElement.querySelector(".number");
-        let value = parseInt(numberDiv.textContent);
-        value += delta;
-        numberDiv.textContent = value;
-      }
-
-      function resetCount(btn) {
-        btn.parentElement.querySelector(".number").textContent = 0;
-      }
-
-      function deleteCounter(btn) {
-        btn.parentElement.remove();
-        updateTitles();
+      function changeCount(numberDiv, delta) {
+        let value = Number(numberDiv.textContent);
+        if (!Number.isFinite(value)) value = 0;
+        numberDiv.textContent = value + delta;
+        saveToLocalStorage();
       }
 
       function clearAllCounts() {
         document
           .querySelectorAll(".number")
           .forEach((n) => (n.textContent = 0));
+        saveToLocalStorage();
       }
 
       function deleteAllCounters() {
         document.getElementById("counterList").innerHTML = "";
+        saveToLocalStorage();
       }
 
-      /* SortableJS */
-      new Sortable(counterList, {
+      new Sortable(document.getElementById("counterList"), {
         animation: 150,
         ghostClass: "dragging",
-        onEnd: () => updateTitles(),
+        onEnd: () => {
+          updateTitles();
+          saveToLocalStorage();
+        },
       });
 
-      /* ライセンスモーダル */
       function openLicenseModal() {
         document.getElementById("licenseModal").style.display = "block";
       }
@@ -392,20 +400,16 @@
 
       window.onclick = function (event) {
         const modal = document.getElementById("licenseModal");
-        if (event.target === modal) {
-          modal.style.display = "none";
-        }
+        if (event.target === modal) modal.style.display = "none";
       };
     </script>
 
-    <!-- License Modal -->
     <div id="licenseModal" class="modal">
       <div class="modal-content">
         <span class="close" onclick="closeLicenseModal()">&times;</span>
         <h3>ライセンス</h3>
         <pre class="license-text">
 Copyright (c) 2026 一徹制作
-
 
 本アプリ（HTML/CSS/JavaScript を含む一式）の著作権は一徹制作に帰属します。
 
