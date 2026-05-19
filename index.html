@@ -219,10 +219,34 @@
       /* -----------------------------------------
        広告用のCSS
     ----------------------------------------- */
-      .ad-area {
+      /* PC用広告を表示する（デフォルトはPC表示） */
+      .ad-pc {
+        display: block;
         max-width: 300px;
-        margin: 20px auto;
+        margin: 20px;
         text-align: center;
+      }
+
+      /* 画面幅768px以下（スマホ）ではPC広告を非表示 */
+      @media screen and (max-width: 768px) {
+        .ad-pc {
+          display: none;
+        }
+      }
+
+      /* スマホ用広告はデフォルト非表示（PCでは出さない） */
+      .ad-sp {
+        display: none;
+      }
+
+      /* 画面幅768px以下（スマホ）でスマホ広告を表示 */
+      @media screen and (max-width: 768px) {
+        .ad-sp {
+          display: block;
+          max-width: 300px;
+          margin: 20px auto;
+          text-align: center;
+        }
       }
     </style>
   </head>
@@ -321,9 +345,16 @@
     <!-- -----------------------------------------
        広告枠エリア
   ----------------------------------------- -->
-    <div class="ad-area">
+    <!-- PC広告 -->
+    <div class="ad-pc">
       <!-- admax -->
       <script src="https://adm.shinobi.jp/s/e9eab4bd2fc97d84c4a33c81bb08a7a4"></script>
+      <!-- admax -->
+    </div>
+    <!-- スマホ広告 -->
+    <div class="ad-sp">
+      <!-- admax -->
+      <script src="https://adm.shinobi.jp/s/a2f46f3d00ee184930b9d2b0192cae79"></script>
       <!-- admax -->
     </div>
 
