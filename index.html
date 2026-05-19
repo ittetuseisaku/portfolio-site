@@ -10,12 +10,6 @@
     />
 
     <style>
-      .logo {
-        font-family: "Yuji Boku", serif;
-        font-size: 1.8rem;
-        font-weight: 600;
-      }
-
       html {
         scroll-behavior: smooth;
       }
@@ -41,16 +35,30 @@
         align-items: center; /* 縦位置を中央に */
       }
 
+      .logo {
+        font-family: "Yuji Boku", serif;
+        font-size: 1.3rem;
+        font-weight: 600;
+      }
+      /* nav 内の要素も中央揃え（ズレ防止の本命） */
+      header nav {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+      }
+
       /* ヘッダー内のリンク */
       header nav a {
         color: #fff;
-        margin-left: 20px;
         text-decoration: none;
         font-weight: 600;
       }
 
       /*Xアイコン*/
       .x-icon img {
+        width: 22px;
+        height: 22px;
+        display: block;
         transition: opacity 0.2s ease;
       }
 
@@ -178,6 +186,11 @@
         text-align: center;
         padding: 20px;
         margin-top: 40px;
+
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-wrap: wrap;
       }
       footer a {
         color: #ccc;
