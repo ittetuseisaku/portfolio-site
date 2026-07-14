@@ -130,6 +130,22 @@
         cursor: pointer;
         font-size: 14px;
       }
+      /* -----------------------------------------
+       広告用のCSS
+    ----------------------------------------- */
+      /* PC用広告を表示する（デフォルトはPC表示） */
+      .ad-pc {
+        display: flex;
+        justify-content: center;
+        margin: 20px 0;
+      }
+
+      /* 画面幅768px以下（スマホ）ではPC広告を非表示 */
+      @media screen and (max-width: 768px) {
+        .ad-pc {
+          display: none;
+        }
+      }
     </style>
   </head>
 
@@ -438,4 +454,13 @@ MIT License: https://github.com/SortableJS/Sortable/blob/master/LICENSE
       </div>
     </div>
   </body>
+  <!-- -----------------------------------------
+       広告枠エリア
+  ----------------------------------------- -->
+  <!-- PC広告 -->
+  <div class="ad-pc">
+    <!-- admax -->
+    <script src="https://adm.shinobi.jp/s/bff15293bd5e56892a65ff111710d701"></script>
+    <!-- admax -->
+  </div>
 </html>
