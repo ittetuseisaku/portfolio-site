@@ -77,6 +77,22 @@
         background: #ef4444;
         color: #fff;
       }
+      /* -----------------------------------------
+       広告用のCSS
+    ----------------------------------------- */
+      /* PC用広告を表示する（デフォルトはPC表示） */
+      .ad-pc {
+        display: flex;
+        justify-content: center;
+        margin: 20px 0;
+      }
+
+      /* 画面幅768px以下（スマホ）ではPC広告を非表示 */
+      @media screen and (max-width: 768px) {
+        .ad-pc {
+          display: none;
+        }
+      }
     </style>
   </head>
   <body>
@@ -248,5 +264,14 @@
         timersEl.appendChild(createTimer());
       });
     </script>
+    <!-- -----------------------------------------
+       広告枠エリア
+  ----------------------------------------- -->
+    <!-- PC広告 -->
+    <div class="ad-pc">
+      <!-- admax -->
+      <script src="https://adm.shinobi.jp/s/d521a4b9b1a86c337425eeefade77d70"></script>
+      <!-- admax -->
+    </div>
   </body>
 </html>
